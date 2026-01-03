@@ -69,7 +69,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: Output\\MangaLibrary_Installer.exe
+          asset_path: Output/MangaLibrary_Installer.exe
           asset_name: MangaLibrary_Installer.exe
           asset_content_type: application/octet-stream
 
@@ -77,4 +77,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: manga-windows-installer
-          path: MangaLibrary_Installer.exe
+          path: Output/MangaLibrary_Installer.exe
