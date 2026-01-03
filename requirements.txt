@@ -1,0 +1,19 @@
+# Minimal requirements for running the app
+# Tkinter is part of the standard library for most Python installs.
+# The embedded SQLite engine is provided by Python's standard library module `sqlite3`.
+# Most official Python installers (python.org) include sqlite3. If your Python lacks sqlite3
+# you can still use the app with CSV storage (default). To check whether your Python has
+# sqlite support, run:
+#
+#   python3 -c "import sqlite3; print(sqlite3.sqlite_version)"
+#
+# If that command fails, install an official Python distribution (python.org) for your OS
+# or re-install Python with SQLite support enabled. On Windows, download the Windows
+# installer from https://python.org/downloads and run it (choose "Install for all users"
+# or enable the recommended options). On macOS, use the official installer or install via
+# Homebrew (`brew install python`) and ensure sqlite dev headers were present when Python
+# was built.
+
+# Optional dependency used for creating standalone executables only:
+pyinstaller>=5.0  # optional; only needed if you want to create .exe/.app files
+Pillow>=9.0      # optional but recommended for cover image support in the GUI

@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+manga-env/
+venv/
+env/
+.venv/
+
+# IDEs
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+
+# PyInstaller
+*.spec
+*.exe
+
+# Logs
+*.log
+
+# Database / backups
+*.db
+*.sqlite
+*.sqlite3
+*.zip
+
+# Images stored outside repo
+/.manga_library_images/
