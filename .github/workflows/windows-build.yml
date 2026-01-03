@@ -60,6 +60,13 @@ jobs:
           prerelease: false
           files: Output/MangaLibrary_Installer.exe
 
+      - name: Upload installer asset to Release (gh)
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload build-${{ github.run_number }} Output/MangaLibrary_Installer.exe --repo ${{ github.repository }} --clobber
+
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
         with:
