@@ -516,17 +516,13 @@ class App(tk.Tk):
 
     # Book actions
     def add_book_dialog(self):
-        title = simpledialog.askstring('Add Book', 'Title:')
-        if not title:
+        data = self._show_book_form('Add Book', include_author_year=True)
+        if not data:
             return
-        author = simpledialog.askstring('Add Book', 'Author (optional):') or ''
-        year = simpledialog.askstring('Add Book', 'Year (optional):') or ''
-        notes = simpledialog.askstring('Add Book', 'Notes (optional):') or ''
-        cover_path = filedialog.askopenfilename(title='Select cover image (optional)', filetypes=[('Image files','*.png;*.jpg;*.jpeg;*.gif;*.bmp'),('All files','*.*')])
-        book_id = self.store.add_book(title.strip(), author.strip(), year.strip(), notes.strip())
+        book_id = self.store.add_book(data['title'].strip(), data.get('author','').strip(), data.get('year','').strip(), data.get('notes','').strip())
+        cover_path = data.get('cover')
         if cover_path:
             try:
-                # store cover via backend
                 if hasattr(self.store, 'set_book_cover'):
                     self.store.set_book_cover(book_id, cover_path)
             except Exception:
@@ -559,18 +555,102 @@ class App(tk.Tk):
 
     # Wishlist actions
     def add_wishlist_dialog(self):
-        title = simpledialog.askstring('Add to Wishlist', 'Title:')
-        if not title:
+        data = self._show_book_form('Add to Wishlist', include_author_year=False)
+        if not data:
             return
-        notes = simpledialog.askstring('Add to Wishlist', 'Notes (optional):') or ''
-        cover_path = filedialog.askopenfilename(title='Select cover image (optional)', filetypes=[('Image files','*.png;*.jpg;*.jpeg;*.gif;*.bmp'),('All files','*.*')])
-        wid = self.store.add_wishlist(title.strip(), notes.strip())
+        wid = self.store.add_wishlist(data['title'].strip(), data.get('notes','').strip())
+        cover_path = data.get('cover')
         if cover_path and hasattr(self.store, 'set_wishlist_cover'):
             try:
                 self.store.set_wishlist_cover(wid, cover_path)
             except Exception:
                 pass
         self._refresh_wishlist()
+
+    def _show_book_form(self, title_text='Enter details', include_author_year=True, initial=None):
+        """Show a modal form to collect title, optional author/year, notes and an optional cover image.
+        Returns a dict with keys: title, author, year, notes, cover or None if cancelled.
+        """
+        dlg = tk.Toplevel(self)
+        dlg.title(title_text)
+        dlg.transient(self)
+        dlg.grab_set()
+
+        frm = ttk.Frame(dlg, padding=12)
+        frm.grid(row=0, column=0, sticky='nsew')
+
+        ttk.Label(frm, text='Title:').grid(row=0, column=0, sticky='w')
+        title_var = tk.StringVar(value=(initial.get('title') if initial else ''))
+        title_entry = ttk.Entry(frm, textvariable=title_var, width=50)
+        title_entry.grid(row=0, column=1, sticky='w')
+
+        row = 1
+        author_var = tk.StringVar(value=(initial.get('author') if initial else ''))
+        year_var = tk.StringVar(value=(initial.get('year') if initial else ''))
+        if include_author_year:
+            ttk.Label(frm, text='Author:').grid(row=row, column=0, sticky='w')
+            ttk.Entry(frm, textvariable=author_var, width=50).grid(row=row, column=1, sticky='w')
+            row += 1
+            ttk.Label(frm, text='Year:').grid(row=row, column=0, sticky='w')
+            ttk.Entry(frm, textvariable=year_var, width=20).grid(row=row, column=1, sticky='w')
+            row += 1
+
+        ttk.Label(frm, text='Notes:').grid(row=row, column=0, sticky='nw')
+        notes_txt = tk.Text(frm, width=50, height=6)
+        if initial and initial.get('notes'):
+            notes_txt.insert('1.0', initial.get('notes'))
+        notes_txt.grid(row=row, column=1, sticky='w')
+        row += 1
+
+        cover_var = tk.StringVar(value=(initial.get('cover') if initial else ''))
+        ttk.Label(frm, text='Cover:').grid(row=row, column=0, sticky='w')
+        cover_frame = ttk.Frame(frm)
+        cover_frame.grid(row=row, column=1, sticky='w')
+        cover_label = ttk.Label(cover_frame, text=(Path(cover_var.get()).name if cover_var.get() else 'No file'))
+        cover_label.grid(row=0, column=0, sticky='w')
+
+        def choose_cover():
+            p = filedialog.askopenfilename(title='Select cover image (optional)', filetypes=[('Image files','*.png;*.jpg;*.jpeg;*.gif;*.bmp'),('All files','*.*')])
+            if p:
+                cover_var.set(p)
+                cover_label.config(text=Path(p).name)
+
+        ttk.Button(cover_frame, text='Choose...', command=choose_cover).grid(row=0, column=1, padx=6)
+        row += 1
+
+        # buttons
+        btn_frame = ttk.Frame(frm)
+        btn_frame.grid(row=row, column=0, columnspan=2, pady=(10,0))
+        result = {'ok': False}
+
+        def on_ok():
+            if not title_var.get().strip():
+                messagebox.showwarning('Validation', 'Title is required')
+                return
+            result.update({
+                'ok': True,
+                'title': title_var.get(),
+                'author': author_var.get(),
+                'year': year_var.get(),
+                'notes': notes_txt.get('1.0', 'end').strip(),
+                'cover': cover_var.get()
+            })
+            dlg.destroy()
+
+        def on_cancel():
+            dlg.destroy()
+
+        ttk.Button(btn_frame, text='OK', command=on_ok).grid(row=0, column=0, padx=6)
+        ttk.Button(btn_frame, text='Cancel', command=on_cancel).grid(row=0, column=1, padx=6)
+
+        # center and focus
+        dlg.update_idletasks()
+        dlg.geometry(f"+{self.winfo_rootx()+40}+{self.winfo_rooty()+40}")
+        title_entry.focus_set()
+        self.wait_window(dlg)
+        if result.get('ok'):
+            return {k: result[k] for k in ('title','author','year','notes','cover')}
+        return None
 
     def remove_selected_wishlist(self):
         sel = self.wish_listbox.curselection()
