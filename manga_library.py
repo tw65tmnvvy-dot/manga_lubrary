@@ -792,10 +792,22 @@ class App(tk.Tk):
             q = simpledialog.askinteger('Quality', 'JPEG quality (10-95):', initialvalue=cfg.get('quality', 85))
             if q:
                 cfg['quality'] = int(q)
+            # Preview dimensions for the UI thumbnails
+            pw = simpledialog.askinteger('Preview width', 'Cover preview width (px):', initialvalue=cfg.get('preview_width', 300))
+            if pw:
+                cfg['preview_width'] = int(pw)
+            ph = simpledialog.askinteger('Preview height', 'Cover preview height (px):', initialvalue=cfg.get('preview_height', 440))
+            if ph:
+                cfg['preview_height'] = int(ph)
         except Exception:
             pass
         save_config(cfg)
         CONFIG = load_config()
+        # Refresh UI to reflect new preview settings
+        try:
+            self._refresh_all()
+        except Exception:
+            pass
 
     def migrate_dialog(self):
         # choose direction based on current store
