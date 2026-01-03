@@ -34,8 +34,18 @@ jobs:
         shell: pwsh
         run: |
           $exe = Join-Path $PWD 'dist\MangaLibrary.exe'
-          $iscc = '"C:\Program Files (x86)\Inno Setup 6\ISCC.exe"'
-          & $iscc "/DMyAppExe=$exe" windows_installer.iss
+          # Try to locate ISCC on PATH first (choco should add it). Fall back to the common install path.
+          $isccCmd = Get-Command ISCC.exe -ErrorAction SilentlyContinue
+          if ($isccCmd) {
+            $isccPath = $isccCmd.Source
+          } else {
+            $isccPath = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+          }
+          if (-not (Test-Path $isccPath)) {
+            Write-Error "ISCC not found at $isccPath. Make sure Inno Setup is installed and available in PATH."
+            exit 1
+          }
+          & "$isccPath" "/DMyAppExe=$exe" windows_installer.iss
 
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
