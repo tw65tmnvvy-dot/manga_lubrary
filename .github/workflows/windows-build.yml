@@ -58,7 +58,6 @@ jobs:
           body: "Automated Windows installer build #${{ github.run_number }}"
           draft: false
           prerelease: false
-          files: Output/MangaLibrary_Installer.exe
 
       - name: Upload installer asset to Release (gh)
         if: success()
