@@ -43,6 +43,9 @@ def load_config():
         'resize_enabled': True,
         'max_width': 800,
         'max_height': 1200,
+        # preview size used in the UI for cover thumbnails (pixels)
+        'preview_width': 300,
+        'preview_height': 440,
         'quality': 85,
         'optimize': True,
     }
@@ -432,7 +435,8 @@ class App(tk.Tk):
         ttk.Button(lib_right, text='Print Library', command=lambda: self.print_list(kind='books')).pack(fill='x', pady=4)
         ttk.Button(lib_right, text='Refresh', command=self._refresh_books).pack(fill='x', pady=4)
         # Cover preview
-        self.cover_label = tk.Label(lib_right, text='No cover', width=20, height=12, bd=1, relief='sunken')
+        # Increase label size so images display larger; width/height are in text units
+        self.cover_label = tk.Label(lib_right, text='No cover', width=30, height=18, bd=1, relief='sunken')
         self.cover_label.pack(pady=8)
 
 
@@ -454,7 +458,7 @@ class App(tk.Tk):
         ttk.Button(wish_right, text='Print Wishlist', command=lambda: self.print_list(kind='wishlist')).pack(fill='x', pady=4)
         ttk.Button(wish_right, text='Refresh', command=self._refresh_wishlist).pack(fill='x', pady=4)
         # wishlist cover preview (re-use same image label)
-        self.wish_cover_label = tk.Label(wish_right, text='No cover', width=20, height=12, bd=1, relief='sunken')
+        self.wish_cover_label = tk.Label(wish_right, text='No cover', width=30, height=18, bd=1, relief='sunken')
         self.wish_cover_label.pack(pady=8)
 
         # Change cover buttons
@@ -632,7 +636,10 @@ class App(tk.Tk):
         try:
             if HAS_PIL:
                 img = Image.open(str(p))
-                img.thumbnail((150, 220))
+                # Respect user-configured preview size (pixels)
+                pw = CONFIG.get('preview_width', 300)
+                ph = CONFIG.get('preview_height', 440)
+                img.thumbnail((pw, ph))
                 photo = ImageTk.PhotoImage(img)
             else:
                 # limited support without PIL (PNG/GIF)
