@@ -30,13 +30,13 @@ Name: choco_npp; Description: "Install Notepad++ (via Chocolatey)"; Flags: unche
 
 [Run]
 ; If any Chocolatey package task is selected and Chocolatey is not present, install Chocolatey first
-Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Command \"[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))\""; \
+Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Command ""[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"""; \
 	StatusMsg: "Installing Chocolatey (package manager)..."; Flags: runhidden waituntilterminated; \
 	Check: (not FileExists(ExpandConstant('{commonappdata}\chocolatey\bin\choco.exe')) ) and \
 				 ( IsTaskSelected('choco_git') or IsTaskSelected('choco_python') or IsTaskSelected('choco_7zip') or IsTaskSelected('choco_npp') or IsTaskSelected('installchoco') )
 
 ; If user explicitly chose to install Chocolatey (even without selecting packages), install it
-Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Command \"[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))\""; \
+Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Command ""[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"""; \
 	StatusMsg: "Installing Chocolatey (package manager)..."; Flags: runhidden waituntilterminated; Check: IsTaskSelected('installchoco') and (not FileExists(ExpandConstant('{commonappdata}\chocolatey\bin\choco.exe')))
 
 ; Install selected Chocolatey packages (use explicit choco path to avoid PATH timing issues)
